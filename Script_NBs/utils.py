@@ -26,12 +26,12 @@ def init(qsoP=None, varP=None):
 
     # if on sciserver, nothing is passed, then assign path to default
     if qsoP is None:
-        qso_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Stripe 82/DataV2/qso.zarr'
+        qso_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/qso.zarr.zip'
     else:
         qso_path = qsoP
 
     if varP is None:
-        var_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Stripe 82/DataV2/vstar.zarr'
+        var_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/vstar.zarr.zip'
     else:
         var_path = varP
 
