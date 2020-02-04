@@ -5,8 +5,13 @@ Regarding SciServer, we are aware that it is NOT identical to the future LSST Sc
 
 The training data (both catalog and light curves) are stored in zarr files, which stores data in chunks and thus enables parallel read/write. There are many good features of zarr to mention, and using zarr as the backend storage is only an experiment to enable faster data I/O. To minimize the learning curve, I wrote some functions to easily explore and access the catalog and light curves.
 
-### Get Started
-To start playing with our training set, please begin with the notebook [Get_started.ipynb](./Script_NBs/Get_started.ipynb).
+### Setup
+Before you can access the data, you need to get your computing environment ready. Instructions are provided in [Setup.ipynb](./Script_NBs/Setup.ipynb).
+
+### Exploring the Training Set
+Once you complete the setup process, you can start exploring our training data from the notebook [Get_started.ipynb](Script_NBs/Get_started.ipynb).
+
+**Note:** The `utils.py` in the Script_NBs folder must be kept in the same directory as the Get_started.ipynb is in order for the convenience functions to work properly.
 
 ### The Training Set
 The training set consists of two catalogs, a quasar catalog (~25k sources) and a non-AGN variables catalog (~25k sources), and the associated light curves. All quasars have spectroscopic confirmations (from SDSS I/II, BOSS and eBOSS), but not every source in the non-AGN catalog is guaranteed to be non-AGN (needs spectroscopic confirmation). The non-AGN variables catalog is constructed by remove sources that have been confirmed to be AGNs from the SDSS DR7 variables catalog ([Ivezic et al. 2007](http://faculty.washington.edu/ivezic/sdss/catalogs/S82variables.html)). Below we list the tasks that we have completed and those that we have planned to work on. 
