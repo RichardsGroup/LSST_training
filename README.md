@@ -6,7 +6,7 @@ Regarding SciServer, we are aware that it is NOT identical to the future LSST Sc
 The training data (both catalog and light curves) are stored in zarr files, which stores data in chunks and thus enables parallel read/write. There are many good features of zarr to mention, and using zarr as the backend storage is only an experiment to enable faster data I/O. To minimize the learning curve, I wrote some functions to easily explore and access the catalog and light curves.
 
 ### Setup
-Before you can access the data, you need to get your computing environment ready. Instructions are provided in [Setup.ipynb](Setup/Setup.ipynb).
+The first step is to create an account on SciServer, the instruction on how to register an account on SciServer is provided in [sciserver.pdf](Setup/sciserver.pdf). Next you would need to get your computing environment ready. The instructions for setting up the necessary compute environment are provided in [Setup.ipynb](Setup/Setup.ipynb).
 
 ### Exploring the Training Set
 Once you complete the setup process, you can start exploring our training data from the notebook [Get_started.ipynb](Script_NBs/Get_started.ipynb).
