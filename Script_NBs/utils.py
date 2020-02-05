@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import zarr
 import os
+import re
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 from astropy.time import Time
@@ -39,8 +40,19 @@ def init(qsoP=None, varP=None):
     var_id = zarr.load(var_path)['catalog']['train_id']
     df_var_ivz = pd.DataFrame(
         zarr.load(var_path)['catalog'][['train_id', 'ivz_id']])
+
+    # import catalog to pandas df + made ID types, replace -99 with nan
     qso_cat = pd.DataFrame(zarr.load(qso_path)['catalog'])
     var_cat = pd.DataFrame(zarr.load(var_path)['catalog'])
+
+    r = re.compile('.*(id|ID)')  # regex match to find id columns
+    qso_id_cols = list(filter(r.match, qso_cat.columns))
+    var_id_cols = list(filter(r.match, var_cat.columns))
+    qso_cat[qso_id_cols] = qso_cat[qso_id_cols].astype(
+        'Int64').replace(-99, np.nan)
+    var_cat[var_id_cols] = var_cat[var_id_cols].astype(
+        'Int64').replace(-99, np.nan)
+
 # def load_x_id():
 #     """Load crts cross_id data to a dataframe. """
 
