@@ -126,6 +126,7 @@ def clip_lc(lc_df):
 
         # three point median filter
         mag = lc_df['dered_{}'.format(band)].values.copy()
+        sigma = np.std(mag)
         med = mag.copy()
         med[1:-2] = [np.median(mag[i-1:i+2]) for i in range(1, lc_len-2)]
 
@@ -138,7 +139,7 @@ def clip_lc(lc_df):
 
         # set clipping thresh hold
         raise_bar = True
-        thresh = 0.25
+        thresh = 3*sigma
 
         # if remove too much, raise bar until only remove 10%
         while raise_bar:
@@ -159,8 +160,8 @@ def get_sdss_qso(train_id, clip=True, datetime=True):
 
     Args:
         train_id (int): Unique ID for an object in training sample.
-        clip (bool): Indicates whether to run filter removing outliers.
-        datetime (bool): Whether to add datetime column for all bands.
+        clip (bool): Indicates whether to run filter removing outliers, default to True.
+        datetime (bool): Whether to add datetime column for all bands, default to True.
     """
 
     # check if id in catalog
@@ -217,9 +218,9 @@ def get_sdss_var(train_id, clip=True, datetime=True):
     """Function to retreive sdss s82 variables light curve given the object meta info.
 
     Args:
-        train_id: Unique ID for an object in training sample.
-        clip: Indicates whether to run filter removing outliers.
-        datetime (bool): Whether to add datetime column for all bands.
+        train_id (int): Unique ID for an object in training sample.
+        clip (bool): Indicates whether to run filter removing outliers, default to True.
+        datetime (bool): Whether to add datetime column for all bands, default to True.
     """
 
     if train_id not in var_id:
@@ -306,126 +307,104 @@ def plot_sdss_qso(train_id, bands=['u', 'g', 'r', 'i', 'z'], clip=True):
 
     Args:
         train_id (int): Unique ID for an object in training sample.
-        bands (list): A list specifying light curves in which bands to plot.
-        clip (bool): Indicates whether to run filter removing outliers.
+        bands (list): Optional, a list specifying light curves in which bands to plot.
+        clip (bool): Optional, indicates whether to run filter removing outliers, default to True.
+
+    Return:
+        bands (list): A list specifying the band filters in which to plot the light curves.
+        x (list): A list of numpy arrays of mjd for observations in each band.
+        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        err (list): A list of numpy arrays of magnitude errors in each band
     """
 
     sdss_lc = get_sdss_qso(train_id, clip)
-
-    # create fig
-    fig = plt.figure(figsize=(12, 8))
-
-    # matplotlib para config
-    rcParams['text.usetex'] = False
-    rcParams['font.size'] = 15
-
-    # plot sdss lc
+    x = []
+    y = []
+    err = []
     mjd_temp = 'mjd_{}'
     mag_temp = 'dered_{}'
     err_temp = 'psfmagerr_{}'
 
     for band in bands:
-        # bad observations has mag of -99
-        mag = sdss_lc[mag_temp.format(band)]
-        mjd = sdss_lc[mjd_temp.format(band)][mag > 0]
-        err = sdss_lc[err_temp.format(band)][mag > 0]
-        mag = mag[mag > 0]
+        # bad observations has been replaced with np.nan in get functions
+        x.append(sdss_lc[mjd_temp.format(band)].values)
+        y.append(sdss_lc[mag_temp.format(band)].values)
+        err.append(sdss_lc[err_temp.format(band)].values)
 
-        plt.errorbar(mjd, mag, err, fmt='.', label='sdss {} band'.format(band))
-
-    plt.gca().invert_yaxis()
-    plt.title('Light curve for object {}'.format(train_id))
-    plt.xlabel('MJD')
-    plt.ylabel('Magnitude')
-    plt.legend()
+    return bands, x, y, err
 
 
-def plot_var(train_id, clip=True):
+def plot_var(train_id, bands=['u', 'g', 'r', 'i', 'z'], clip=True):
     """Plot SDSS non-AGN varialbes light curves without merging.
 
     Args:
-        train_id: Unique ID for an object in training sample.
-        clip (bool): Indicates whether to run filter removing outliers.
+        train_id (int): Unique ID for an object in training sample.
+        bands (list): A list specifying light curves in which bands to plot.
+        clip (bool): Indicates whether to run filter removing outliers, default to True.
+
+    Return:
+        bands (list): A list specifying the band filters in which to plot the light curves.
+        x (list): A list of numpy arrays of mjd for observations in each band.
+        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        err (list): A list of numpy arrays of magnitude errors in each band
     """
 
     sdss_lc = get_sdss_var(train_id, clip)
-
-    # create fig
-    fig = plt.figure(figsize=(12, 8))
-
-    # matplotlib para config
-    rcParams['text.usetex'] = False
-    rcParams['font.size'] = 15
-
-    # plot sdss lc
-    bands = ['u', 'g', 'r', 'i', 'z']
+    x = []
+    y = []
+    err = []
     mjd_temp = 'mjd_{}'
     mag_temp = 'dered_{}'
     err_temp = 'psfmagerr_{}'
 
     for band in bands:
-        # bad observations has mag of -99
-        mag = sdss_lc[mag_temp.format(band)]
-        mjd = sdss_lc[mjd_temp.format(band)][mag > 0]
-        err = sdss_lc[err_temp.format(band)][mag > 0]
-        mag = mag[mag > 0]
+        # bad observations has been replaced with np.nan in get functions
+        x.append(sdss_lc[mjd_temp.format(band)].values)
+        y.append(sdss_lc[mag_temp.format(band)].values)
+        err.append(sdss_lc[err_temp.format(band)].values)
 
-        plt.errorbar(mjd, mag, err, fmt='.', label='sdss {} band'.format(band))
-
-    plt.gca().invert_yaxis()
-    plt.title('Light curve for object {}'.format(train_id))
-    plt.xlabel('MJD')
-    plt.ylabel('Magnitude')
-    plt.legend()
+    return bands, x, y, err
 
 
-def plot_merge_gri(train_id, how=np.median):
+def plot_merge_gri(train_id, how=np.nanmedian, clip=True):
     """Plot merged light curves (AGN or non-AGNs) using SDSS g, r, i bands.
 
     Args:
-        train_id: Unique ID for an object in training sample.
-        how: Normalization method, np.mean or np.median
+        train_id (int): Unique ID for an object in training sample.
+        how: Normalization method, np.nanmean or np.nanmedian, default to np.median
+        clip (bool): Indicates whether to run filter removing outliers, default to True.
+
+    Return:
+        bands (list): A list specifying the band filters in which to plot the light curves.
+        x (list): A list of numpy arrays of mjd for observations in each band.
+        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        err (list): A list of numpy arrays of magnitude errors in each band
     """
 
     if train_id in qso_id:
-        sdss_lc = get_sdss_qso(train_id)
+        sdss_lc = get_sdss_qso(train_id, clip=clip)
     elif train_id in var_id:
-        sdss_lc = get_sdss_var(train_id)
+        sdss_lc = get_sdss_var(train_id, clip=clip)
     else:
         print('Requested object not in catalog!')
         return None
 
     bands = ['g', 'r', 'i']
-
-    # create fig
-    fig = plt.figure(figsize=(12, 8))
-
-    # matplotlib para config
-    rcParams['text.usetex'] = False
-    rcParams['font.size'] = 15
-
-    # plot sdss lc
+    x = []
+    y = []
+    err = []
     mjd_temp = 'mjd_{}'
     mag_temp = 'dered_{}'
     err_temp = 'psfmagerr_{}'
 
     for band in bands:
-        # bad observations has mag of -99
-        mag = sdss_lc[mag_temp.format(band)]
-        mjd = sdss_lc[mjd_temp.format(band)][mag > 0]
-        err = sdss_lc[err_temp.format(band)][mag > 0]
-        mag = mag[mag > 0]
-        mag = mag - how(mag)  # subtract median
+        # bad observations has been replaced with np.nan in get functions
+        mean_mag = how(sdss_lc[mag_temp.format(band)].values)
+        x.append(sdss_lc[mjd_temp.format(band)].values)
+        y.append(sdss_lc[mag_temp.format(band)].values - mean_mag)
+        err.append(sdss_lc[err_temp.format(band)].values)
 
-        plt.errorbar(mjd, mag, err, fmt='.', label='sdss {} band'.format(band))
-
-    plt.gca().invert_yaxis()
-    plt.title(
-        'Merged (Normalized) Light curve for object {} in SDSS g, r, i bands'.format(train_id))
-    plt.xlabel('MJD')
-    plt.ylabel('Magnitude')
-    plt.legend()
-
+    return bands, x, y, err
 
 # def plot_sdss_crts(ID_sdss, sdss_band=None, how=np.median):
 #     """Plot merged light curves (AGN or non-AGNs) using one SDSS band and CRTS V band.
