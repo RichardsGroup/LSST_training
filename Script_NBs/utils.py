@@ -99,12 +99,25 @@ def get_var_cat():
     return var_cat
 
 
+def get_train_cat():
+    """Combine the result of get_qso_cat() and get_var_cat()."""
+    
+    qso_cat['qlabel'] = 1
+    var_cat['qlabel'] = 0
+            
+    train_df = pd.concat([qso_cat, var_cat], sort='train_id', ignore_index=True)
+    r = re.compile('.*(id|ID)')  # regex match to find id columns
+    train_id_cols = list(filter(r.match, train_df.columns))
+    train_df[train_id_cols] = train_df[train_id_cols].astype('Int64')
+    train_df['spec'] = train_df['spec'].astype('Int64')
+    
+    return train_df
+
 def qso_cat_meta():
     """Function to display column info for the master catalog"""
 
     root = zarr.open(qso_path, mode='r')['catalog']
     return root.attrs.asdict().copy()
-
 
 def var_cat_meta():
     """Function to display column info for the master catalog"""
