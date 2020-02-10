@@ -52,7 +52,7 @@ we list the tasks that we have completed and those that we plan to work on.
 
 
 #### Finished:
-- Compliled a catalog of quasars and a catalog of non-AGN (not 100% pure) variables using SDSS DR7 and DR14
+- Compiled a catalog of quasars and a catalog of non-AGN (not 100% pure) variables using SDSS DR7 and DR14
 - Collected SDSS light curves for objects found above (SDSS photometry + DCR)
 - Merged in available SpIES (~90 degree^2) MIR detections for objects in the QSO and non-AGN variables catalogs
 - Merged in Gaia DR2 proper motion measurement for for objects in the QSO and non-AGN variables catalogs
@@ -61,5 +61,5 @@ we list the tasks that we have completed and those that we plan to work on.
 #### To do:
 - [ ] Clean up the non-AGN sample (remove contaminated AGNs if possible)
 - [ ] Fit DHO model to merged light curves (crts + other surveys)
-- [x] Get colors (best-fit mags) for all sources in the two catalogs using casjob
+- [x] Get colors (best-fit mags) for all sources in the two catalogs using casjobs
 - [ ] Get corresponding CRTS light curves (DR3) for all sources
