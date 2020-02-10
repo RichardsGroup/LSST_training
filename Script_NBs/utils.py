@@ -23,7 +23,7 @@ def init(qsoP=None, varP=None):
 
     # initiate global variables
     global qso_id, var_id, df_var_ivz, qso_path, var_path
-    global qso_cat, var_cat
+    global qso_cat, var_cat, train_cat
 
     # if on sciserver, nothing is passed, then assign path to default
     if qsoP is None:
@@ -52,6 +52,9 @@ def init(qsoP=None, varP=None):
         'Int64').replace(-99, np.nan)
     var_cat[var_id_cols] = var_cat[var_id_cols].astype(
         'Int64').replace(-99, np.nan)
+
+    # get train_df and assign to global variable
+    train_cat = _get_train_cat()
 
 # def load_x_id():
 #     """Load crts cross_id data to a dataframe. """
@@ -87,6 +90,24 @@ def valid_ids():
 #     return crts_qso
 
 
+def train2sdss(train_id):
+    """Convert from train_id to SDSS objID in run-rerun-camcol-field-obj format"""
+
+    if train_id in train_cat.train_id.values:
+        return train_cat[train_cat.train_id == train_id].objid.values[0]
+    else:
+        print('Warning: Provided train_id not in training data!')
+
+
+def sdss2train(objid):
+    """Convert from SDSS objID in run-rerun-camcol-field-obj format to train_id"""
+
+    if objid in train_cat.objid.values:
+        return train_cat[train_cat.objid == objid].train_id.values[0]
+    else:
+        print('Warning: Provided SDSS objID not in training data!')
+
+
 def get_qso_cat():
     """Function to retrieve QSO master catalog."""
 
@@ -100,24 +121,33 @@ def get_var_cat():
 
 
 def get_train_cat():
-    """Combine the result of get_qso_cat() and get_var_cat()."""
-    
+    """combine the result of get_qso_cat() and get_var_cat()"""
+
+    return train_cat
+
+
+def _get_train_cat():
+    """Private function: combine the result of get_qso_cat() and get_var_cat()."""
+
     qso_cat['qlabel'] = 1
     var_cat['qlabel'] = 0
-            
-    train_df = pd.concat([qso_cat, var_cat], sort='train_id', ignore_index=True)
+
+    train_df = pd.concat([qso_cat, var_cat],
+                         sort='train_id', ignore_index=True)
     r = re.compile('.*(id|ID)')  # regex match to find id columns
     train_id_cols = list(filter(r.match, train_df.columns))
     train_df[train_id_cols] = train_df[train_id_cols].astype('Int64')
     train_df['spec'] = train_df['spec'].astype('Int64')
-    
+
     return train_df
+
 
 def qso_cat_meta():
     """Function to display column info for the master catalog"""
 
     root = zarr.open(qso_path, mode='r')['catalog']
     return root.attrs.asdict().copy()
+
 
 def var_cat_meta():
     """Function to display column info for the master catalog"""
