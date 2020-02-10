@@ -14,6 +14,7 @@ dependencies:
   - scipy>1.3.*
   - zarr=2.4.*
   - matplotlib>=2.2.3
+  - scikit-learn
   - pip:
     - ipytree==0.1.*
 
