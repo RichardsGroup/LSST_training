@@ -27,12 +27,12 @@ def init(qsoP=None, varP=None):
 
     # if on sciserver, nothing is passed, then assign path to default
     if qsoP is None:
-        qso_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/qso.zarr.zip'
+        qso_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/qsoV5.zarr.zip'
     else:
         qso_path = qsoP
 
     if varP is None:
-        var_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/vstar.zarr.zip'
+        var_path = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/vStarV5.zarr.zip'
     else:
         var_path = varP
 
@@ -218,12 +218,6 @@ def get_sdss_qso(train_id, clip=True, datetime=True):
     lc_df = pd.DataFrame(zarr.load(qso_path)['sdss_lc/{}'.format(train_id)]
                          ).sort_values(by='mjd_u').reset_index(drop=True)
 
-    # add denred mag columns
-    for band in ['u', 'g', 'r', 'i', 'z']:
-
-        lc_df['dered_{}'.format(band)] = lc_df['psfmag_{}'.format(band)] - \
-            cat_row['extinction_{}'.format(band)].values[0]
-
     # add datetime columns
     if datetime:
         for band in ['u', 'g', 'r', 'i', 'z']:
@@ -272,18 +266,9 @@ def get_sdss_var(train_id, clip=True, datetime=True):
     # get the catalog row for queried object
     cat_row = var_cat[var_cat.train_id == train_id]
 
-    # temp fix to associate train_id with ivz_id, which was used to store light curve in the zarr file
-    ivz_id = df_var_ivz[df_var_ivz.train_id == train_id].ivz_id.values[0]
-
     # sort by mjd
-    lc_df = pd.DataFrame(zarr.load(var_path)['sdss_lc/{}'.format(ivz_id)]
+    lc_df = pd.DataFrame(zarr.load(var_path)['sdss_lc/{}'.format(train_id)]
                          ).sort_values(by='mjd_u').reset_index(drop=True)
-
-    # add dered mag columns
-    for band in ['u', 'g', 'r', 'i', 'z']:
-
-        lc_df['dered_{}'.format(band)] = lc_df['psfmag_{}'.format(band)] - \
-            cat_row['extinction_{}'.format(band)].values[0]
 
     # add datetime columns
     if datetime:
