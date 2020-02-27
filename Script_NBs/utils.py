@@ -48,8 +48,8 @@ def init(qsoP=None, varP=None):
     r = re.compile('.*(id|ID)')  # regex match to find id columns
     qso_int_cols = list(filter(r.match, qso_cat.columns))
     var_int_cols = list(filter(r.match, var_cat.columns))
-    qso_int_cols.extend('lcN')
-    var_int_cols.extend('lcN')
+    qso_int_cols.extend(['lcN'])
+    var_int_cols.extend(['lcN'])
     qso_cat[qso_int_cols] = qso_cat[qso_int_cols].astype(
         'Int64').replace(-99, np.nan)
     var_cat[var_int_cols] = var_cat[var_int_cols].astype(
