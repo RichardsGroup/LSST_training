@@ -46,11 +46,13 @@ def init(qsoP=None, varP=None):
     var_cat = pd.DataFrame(zarr.load(var_path)['catalog'])
 
     r = re.compile('.*(id|ID)')  # regex match to find id columns
-    qso_id_cols = list(filter(r.match, qso_cat.columns))
-    var_id_cols = list(filter(r.match, var_cat.columns))
-    qso_cat[qso_id_cols] = qso_cat[qso_id_cols].astype(
+    qso_int_cols = list(filter(r.match, qso_cat.columns))
+    var_int_cols = list(filter(r.match, var_cat.columns))
+    qso_int_cols.extend('lcN')
+    var_int_cols.extend('lcN')
+    qso_cat[qso_int_cols] = qso_cat[qso_int_cols].astype(
         'Int64').replace(-99, np.nan)
-    var_cat[var_id_cols] = var_cat[var_id_cols].astype(
+    var_cat[var_int_cols] = var_cat[var_int_cols].astype(
         'Int64').replace(-99, np.nan)
 
     # get train_df and assign to global variable
@@ -135,9 +137,9 @@ def _get_train_cat():
     train_df = pd.concat([qso_cat, var_cat],
                          sort='train_id', ignore_index=True)
     r = re.compile('.*(id|ID)')  # regex match to find id columns
-    train_id_cols = list(filter(r.match, train_df.columns))
-    train_df[train_id_cols] = train_df[train_id_cols].astype('Int64')
-    train_df['spec'] = train_df['spec'].astype('Int64')
+    train_int_cols = list(filter(r.match, train_df.columns))
+    train_int_cols.extend(['lcN', 'spec'])
+    train_df[train_int_cols] = train_df[train_int_cols].astype('Int64')
 
     return train_df
 
