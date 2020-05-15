@@ -19,6 +19,7 @@ dependencies:
   - widgetsnbextension=3.5.*
   - zarr=2.4.*
   - matplotlib>=2.2.3
+  - seaborn
   - pip:
     - ipytree==0.1.5
 
