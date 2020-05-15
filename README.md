@@ -1,9 +1,10 @@
-# LSST AGN Classification Training Set
+# LSST AGN Classification/Photo-z estimation Training Set
 
 Here we present the training set that is being constructed at Drexel
 University. This repository hosts the scripts needed to access the
 training data and some notebooks demonstrating how to explore the
-training set. This repository is public; however, we are primarily hosting the training data on SciServer.org,
+training set. This repository is public; 
+however, we are primarily hosting the training data on SciServer.org,
 which DOES require an account. Putting the scripts
 and notebooks on GitHub is to make it easier for others to play
 with our training data offline.
@@ -33,14 +34,16 @@ necessary compute environment are provided in
 [Setup.ipynb](Setup/Setup.ipynb).
 
 ### Exploring the Training Set
-Once you complete the setup process, you can start exploring our training data from the notebook [Get_started.ipynb](Script_NBs/Get_started.ipynb).
+Once you complete the setup process, you can start exploring our training data 
+from the notebook [Getting_started.ipynb](Script_NBs/00_Getting_started.ipynb).
 
-**Note:** The `utils.py` in the Script_NBs folder must be kept in the same directory as the Get_started.ipynb is in order for the convenience functions to work properly.
+**Note:** The `utils.py` in the Script_NBs folder must be kept in the same directory 
+as the Get_started.ipynb is in order for the convenience functions to work properly.
 
 ### The Training Set
-The training set consists of two catalogs, a quasar catalog (~25k
-sources) and a non-AGN variables catalog (~25k sources), and the
-associated light curves. All quasars have spectroscopic confirmation
+The training set consists of three catalogs, a quasar catalog (~25k
+sources), a non-AGN variables catalog (~25k sources) and a galaxy catalog (~110k sources), 
+and the associated light curves. All quasars have spectroscopic confirmation
 (from SDSS I/II, BOSS and eBOSS), but not every source in the non-AGN
 catalog is guaranteed to be non-AGN (needs spectroscopic
 confirmation). However, the non-AGN variables catalog is constructed by removing
@@ -52,14 +55,16 @@ we list the tasks that we have completed and those that we plan to work on.
 
 
 #### Finished:
-- Compiled a catalog of quasars and a catalog of non-AGN (not 100% pure) variables using SDSS DR7 and DR14
+- Compiled a catalog of quasars, a catalog of galaxy and a catalog of non-AGN (not 100% pure) 
+  variables using SDSS DR7 and DR14
 - Collected SDSS light curves for objects found above (SDSS photometry + DCR)
-- Merged in available SpIES (~90 degree^2) MIR detections for objects in the QSO and non-AGN variables catalogs
-- Merged in Gaia DR2 proper motion measurement for for objects in the QSO and non-AGN variables catalogs
-- Wrote functions to perform simple light curve merging (gri)
+- Merged in available SpIES (~90 degree^2) MIR detections for all objects
+- Merged in Gaia DR2 proper motion measurement for for all objects (if matched)
+- Merged in GALEX nuv and fuv photometry for all objects (if matched)
+- Wrote a module containing convenience functions to access and explore the training data
 
 #### To do:
 - [ ] Clean up the non-AGN sample (remove contaminated AGNs if possible)
-- [ ] Fit DHO model to merged light curves (crts + other surveys)
+- [ ] Fit DRW/DHO model to merged light curves (crts + other surveys)
 - [x] Get colors (best-fit mags) for all sources in the two catalogs using casjobs
-- [ ] Get corresponding CRTS light curves (DR3) for all sources
+- [ ] Get corresponding CRTS/PTF/ZTF light curves for all sources
