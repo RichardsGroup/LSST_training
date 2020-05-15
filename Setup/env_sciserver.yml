@@ -16,9 +16,7 @@ dependencies:
   - matplotlib>=2.2.3
   - scikit-learn
   - seaborn
-  - nodejs
   - pip:
     - ipytree==0.1.*
-    - nbdime
-    - jupyterlab-git
+
 
