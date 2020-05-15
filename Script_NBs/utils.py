@@ -48,10 +48,12 @@ def init(data_dir=None):
         int_cols.extend(['lcN'])
         cat_dict[data][int_cols] = cat_dict[data][int_cols].astype(
             'Int64').replace(-99, np.nan)
-                
+    
     # get train_df and assign to global variable
     train_cat = _get_train_cat()
 
+    qso_int_cols.extend(['lcN'])
+    var_int_cols.extend(['lcN'])
 
 def valid_ids():
     """Return a dataframe of valid IDs together with associated object type."""
