@@ -52,8 +52,6 @@ def init(data_dir=None):
     # get train_df and assign to global variable
     train_cat = _get_train_cat()
 
-    qso_int_cols.extend(['lcN'])
-    var_int_cols.extend(['lcN'])
 
 def valid_ids():
     """Return a dataframe of valid IDs together with associated object type."""
