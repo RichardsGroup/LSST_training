@@ -21,5 +21,5 @@ dependencies:
   - matplotlib>=2.2.3
   - seaborn
   - pip:
-    - ipytree==0.1.5
+    - ipytree
 

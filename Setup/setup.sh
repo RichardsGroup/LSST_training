@@ -13,5 +13,4 @@ python -m ipykernel install --user --name lsst_train --display-name "LSST_Train"
 
 # source again to activate current shell and conda env
 source ~/.bashrc
-conda activate lsst_train
 
