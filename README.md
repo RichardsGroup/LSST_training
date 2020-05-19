@@ -37,8 +37,9 @@ necessary compute environment are provided in
 Once you complete the setup process, you can start exploring our training data 
 from the notebook [Getting_started.ipynb](Script_NBs/00_Getting_started.ipynb).
 
-**Note:** The `utils.py` in the Script_NBs folder must be kept in the same directory 
-as the Get_started.ipynb is in order for the convenience functions to work properly.
+**NOTE:** The `utils.py` in the Script_NBs folder must be kept in the same directory 
+as the Getting_started.ipynb (or any other notebooks/scripts from which you want to access 
+the training data), in order for the convenience functions to work properly.
 
 ### The Training Set
 The training set consists of three catalogs, a quasar catalog (~25k
