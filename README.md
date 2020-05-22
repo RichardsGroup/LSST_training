@@ -24,14 +24,16 @@ faster data I/O. To minimize the learning curve, some functions are
 provided to help explore and access the catalog and light curves.
 
 ### Setup
-The first step is to create an account on SciServer, the instructions
-on how to register an account on SciServer are provided in
-[sciserver.pdf](Setup/sciserver.pdf). 
+- The first step is to create an account on SciServer, the instructions
+  on how to register an account on SciServer and join the `Drexel LSST` 
+  group are provided in [sciserver.pdf](Setup/sciserver.pdf). 
 
-Next you would need to get your
-computing environment ready. The instructions for setting up the
-necessary compute environment are provided in
-[Setup.ipynb](Setup/Setup.ipynb).
+- Once you create an accout, you can create a container following the 
+  directions listed in the [Container.ipynb](Setup/Container.ipynb).
+
+- Lastly, you would need to get your computing environment ready. 
+  The instructions for setting up the necessary compute environment are 
+  provided in [Setup.ipynb](Setup/Setup.ipynb).
 
 ### Exploring the Training Set
 Once you complete the setup process, you can start exploring our training data 
