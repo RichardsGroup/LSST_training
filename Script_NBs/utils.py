@@ -32,7 +32,7 @@ def init(data_dir=None):
 
     # if on sciserver, nothing is passed, then assign path to default
     if data_dir == None:
-        data_dir = '/home/idies/workspace/Storage/ywx649999311/AGN_training/Data/'
+        data_dir = '/home/idies/workspace/Temporary/ywx649999311/LSST_AGN/Class_Training/Data/'
     
     data_paths = glob.glob(os.path.join(data_dir, '*.zarr.zip'))
     data_ls = [os.path.basename(x).split('.')[0] for x in data_paths]
