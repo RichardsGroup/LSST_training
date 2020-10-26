@@ -45,7 +45,7 @@ the training data), in order for the convenience functions to work properly.
 
 ### The Training Set
 The training set consists of four catalogs, a quasar catalog (~84k
-sources), a high redshift QSO catalog (~1K), a non-AGN variables catalog (~16k sources) 
+sources), a high redshift QSO catalog (~1k), a non-AGN variables catalog (~16k sources) 
 and a galaxy catalog (~270k sources), and the associated light curves. 
 You can see more detailed information about this dataset at [here](./Data_Stat.md). 
 All quasars/galaxies have spectroscopic confirmation
@@ -61,9 +61,10 @@ Below we list the tasks that we have completed and those that we plan to work on
 #### Finished:
 - Compiled a catalog of quasars, a catalog of galaxy and a catalog of non-AGN (not 100% pure) 
   variables using DR16
+- Merged in ~1k high redshift QSOs (not only in S82) provided by Feige Wang
 - Collected SDSS light curves for objects found above (SDSS photometry + DCR)
 - Merged in available SpIES (~90 degree^2) MIR detections for all objects
-- Cross-matched with UKIDSS photometry and morphology.
+- Cross-matched with UKIDSS photometry and morphology with data collected by Matthew Temple.
 - Merged in Gaia DR2 proper motion measurement for for all objects (if matched)
 - Merged in GALEX nuv and fuv photometry for all objects (if matched)
 - Wrote a module containing convenience functions to access and explore the training data
