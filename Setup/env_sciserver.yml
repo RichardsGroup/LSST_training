@@ -16,7 +16,7 @@ dependencies:
   - matplotlib>=2.2.3
   - scikit-learn
   - seaborn
+  - pyarrow
   - pip:
     - ipytree
-
-
+    - pyyaml

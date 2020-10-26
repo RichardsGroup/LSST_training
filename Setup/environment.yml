@@ -20,6 +20,8 @@ dependencies:
   - zarr=2.4.*
   - matplotlib>=2.2.3
   - seaborn
+  - pyarrow
   - pip:
     - ipytree
+    - pyyaml
 
