@@ -73,3 +73,6 @@ Below we list the tasks that we have completed and those that we plan to work on
 - [ ] Clean up the non-AGN sample (remove contaminated AGNs if possible)
 - [ ] Fit DRW/DHO model to merged light curves (crts + other surveys)
 - [ ] Get corresponding CRTS/PTF/ZTF light curves for all sources
+
+##### Working offline:
+If you would like to work with the data on your local machine. You can go the data directory on SciServer -> "/home/idies/workspace/Temporary/ywx649999311/LSST_AGN/Class_Training/Data/" and download the data files, which are `AllMasters.parquet`, `LCs.zarr.zip` and `meta.yaml`. You can use the `utils.py` file provided in the `Script_NBs` folder to access the data like how you would do it on SciServer.  
