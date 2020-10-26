@@ -30,11 +30,11 @@ def init(data_dir=None):
         data_dir = (
             "/home/idies/workspace/Temporary/ywx649999311/LSST_AGN/Class_Training/Data/"
         )
-
+    
     LC_path = os.path.join(data_dir, "LCs.zarr.zip")
     cat_path = os.path.join(data_dir, "AllMasters.parquet")
     meta_data = yaml.safe_load(open(os.path.join(data_dir, "meta.yaml")))
-
+    
     # get train_df and assign to global variable
     train_cat = _get_train_cat()
     valid_IDs = _get_valid_ids()
