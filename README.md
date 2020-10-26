@@ -16,7 +16,7 @@ In addition, SciServer provides free computing resource and also
 supports the Jupyter environment. Please do not hesitate to suggest
 alternative solutions.
 
-The training data (both static catalog data and light curves) are
+The master catalog is stored in `parquet` and the light curves are
 stored in `zarr` files, which stores data in chunks and thus enables
 parallel read/write. There are many good features of zarr to mention,
 and using zarr as the backend storage is only an experiment to enable
@@ -44,24 +44,26 @@ as the Getting_started.ipynb (or any other notebooks/scripts from which you want
 the training data), in order for the convenience functions to work properly.
 
 ### The Training Set
-The training set consists of three catalogs, a quasar catalog (~25k
-sources), a non-AGN variables catalog (~25k sources) and a galaxy catalog (~110k sources), 
-and the associated light curves. All quasars have spectroscopic confirmation
+The training set consists of four catalogs, a quasar catalog (~84k
+sources), a high redshift QSO catalog (~1K), a non-AGN variables catalog (~16k sources) 
+and a galaxy catalog (~270k sources), and the associated light curves. 
+You can see more detailed information about this dataset at [here](./Data_Stat.md). 
+All quasars/galaxies have spectroscopic confirmation
 (from SDSS I/II, BOSS and eBOSS), but not every source in the non-AGN
 catalog is guaranteed to be non-AGN (needs spectroscopic
 confirmation). However, the non-AGN variables catalog is constructed by removing
 sources that have been confirmed to be AGNs from the SDSS DR7
-variables catalog ([Ivezic et
-al. 2007](http://faculty.washington.edu/ivezic/sdss/catalogs/S82variables.html)). Below
-we list the tasks that we have completed and those that we plan to work on.
+variables catalog ([Ivezic et al. 2007](http://faculty.washington.edu/ivezic/sdss/catalogs/S82variables.html)). 
+Below we list the tasks that we have completed and those that we plan to work on.
 
-
+<br/>
 
 #### Finished:
 - Compiled a catalog of quasars, a catalog of galaxy and a catalog of non-AGN (not 100% pure) 
-  variables using SDSS DR7 and DR14
+  variables using DR16
 - Collected SDSS light curves for objects found above (SDSS photometry + DCR)
 - Merged in available SpIES (~90 degree^2) MIR detections for all objects
+- Cross-matched with UKIDSS photometry and morphology.
 - Merged in Gaia DR2 proper motion measurement for for all objects (if matched)
 - Merged in GALEX nuv and fuv photometry for all objects (if matched)
 - Wrote a module containing convenience functions to access and explore the training data
@@ -69,5 +71,4 @@ we list the tasks that we have completed and those that we plan to work on.
 #### To do:
 - [ ] Clean up the non-AGN sample (remove contaminated AGNs if possible)
 - [ ] Fit DRW/DHO model to merged light curves (crts + other surveys)
-- [x] Get colors (best-fit mags) for all sources in the two catalogs using casjobs
 - [ ] Get corresponding CRTS/PTF/ZTF light curves for all sources
