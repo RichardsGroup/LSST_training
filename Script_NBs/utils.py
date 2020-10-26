@@ -5,14 +5,16 @@ import os
 import re
 import glob
 import json
+import yaml
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 from astropy.time import Time
 
 # matplotlib para config
-rcParams['text.usetex'] = False
-rcParams['font.size'] = 15
-rcParams['axes.titlepad'] = 10
+rcParams["text.usetex"] = False
+rcParams["font.size"] = 15
+rcParams["axes.titlepad"] = 10
+
 
 def init(data_dir=None):
     """Must be called first to specify paths to data
@@ -20,164 +22,134 @@ def init(data_dir=None):
     Args:
         data_dir(str): Path to the diretory hosting the training data.
     """
-
     # initiate global variables
-    global data_ls, id_dict, cat_dict, path_dict, train_cat
-    
-    # init the empty objects
-    path_dict = {}
-    cat_dict = {}
-    id_dict = {}
-    data_ls = []
+    global LC_path, cat_path, train_cat, meta_data, valid_IDs
 
     # if on sciserver, nothing is passed, then assign path to default
     if data_dir == None:
-        data_dir = '/home/idies/workspace/Temporary/ywx649999311/LSST_AGN/Class_Training/Data/'
-    
-    data_paths = glob.glob(os.path.join(data_dir, '*.zarr.zip'))
-    data_ls = [os.path.basename(x).split('.')[0] for x in data_paths]
-    r = re.compile('.*(id|ID)')  # regex match to find id columns
-    
-    for data in data_ls:
-        path_dict[data] = os.path.join(data_dir, data + '.zarr.zip')
-        cat_dict[data] = pd.DataFrame(zarr.load(path_dict[data])['catalog'])
-        id_dict[data] = zarr.load(path_dict[data])['catalog']['train_id']
+        data_dir = (
+            "/home/idies/workspace/Temporary/ywx649999311/LSST_AGN/Class_Training/Data/"
+        )
 
-        # update NaN dtype in int columns
-        int_cols = list(filter(r.match, cat_dict[data].columns))
-        int_cols.extend(['lcN'])
-        cat_dict[data][int_cols] = cat_dict[data][int_cols].astype(
-            'Int64').replace(-99, np.nan)
-    
+    LC_path = os.path.join(data_dir, "LCs.zarr.zip")
+    cat_path = os.path.join(data_dir, "AllMasters.parquet")
+    meta_data = yaml.safe_load(open(os.path.join(data_dir, "meta.yaml")))
+
     # get train_df and assign to global variable
     train_cat = _get_train_cat()
+    valid_IDs = _get_valid_ids()
+
+
+def _get_valid_ids():
+    """Private: Return valide IDs."""
+    return train_cat[["train_id", "class"]]
 
 
 def valid_ids():
     """Return a dataframe of valid IDs together with associated object type."""
-    
-    id_dfs = []
-    
-    for data in data_ls:
-        id_df = pd.DataFrame({'train_id': id_dict[data], 'Type': data})
-        id_dfs.append(id_df)
-        
-    return pd.concat(id_dfs, ignore_index=True)
+    return valid_IDs
+
 
 def get_classes():
     """Return the classes of objects included in the training set."""
-    
-    return data_ls
+    return meta_data["classes"]
 
 
 def train2sdss(train_id):
     """Convert from train_id to SDSS objID in run-rerun-camcol-field-obj format"""
-
     if train_id in train_cat.train_id.values:
         return train_cat[train_cat.train_id == train_id].sdss_objid.values[0]
     else:
-        print('Warning: Provided train_id not in training data!')
+        print("Warning: Provided train_id not in training data!")
 
 
 def sdss2train(objid):
     """Convert from SDSS objID in run-rerun-camcol-field-obj format to train_id"""
-
     if objid in train_cat.sdss_objid.values:
         return train_cat[train_cat.objid == objid].train_id.values[0]
     else:
-        print('Warning: Provided SDSS objID not in training data!')
+        print("Warning: Provided SDSS objID not in training data!")
+
+
+def get_cat(class_label):
+    """Return master catalog given a class label.
+
+    Args:
+        class_label (str): Claess label, e.g., s82Qso. 
+    """
+    assert class_label in meta_data["classes"], "Class not in database!"
+    return train_cat[train_cat["class"] == class_label].copy()
 
 
 def get_qso_cat():
     """Function to retrieve QSO master catalog."""
-    
-    return cat_dict['qso']
+    return pd.concat([get_cat("s82Qso"), get_cat("highZQso")], ignore_index=True)
 
 
 def get_var_cat():
     """Function to retrieve non-AGN variables master catalog."""
-
-    return cat_dict['vStar']
+    return get_cat("s82vStar")
 
 
 def get_gal_cat():
     """Function to retrieve non-AGN variables master catalog."""
 
-    return cat_dict['gal']
+    return get_cat("s82Gal")
 
 
 def get_train_cat():
-    """combine the result of get_qso_cat() and get_var_cat()"""
-
+    """Return the master catalog of all sources."""
     return train_cat
 
 
 def _get_train_cat():
-    """Private function: combine the result of get_qso_cat() and get_var_cat()."""
-    
-    global path_dict, cat_dict
-    
-    for key in cat_dict:
-        cat_dict[key]['class'] = key
+    """Load all master catalog from disk."""
 
-    train_df = pd.concat(list(cat_dict.values()),
-                         sort='train_id', ignore_index=True)
-    
-    # update dtype for int cols
-    r = re.compile('.*(id|ID)')  # regex match to find id columns
-    train_int_cols = list(filter(r.match, train_df.columns))
-    train_int_cols.extend(['lcN', 'spec'])
-    train_df[train_int_cols] = train_df[train_int_cols].astype('Int64')
+    global cat_path, meta_data
+
+    train_int_cols = meta_data["int_cols"]
+    train_df = pd.read_parquet(cat_path)
+    train_df[train_int_cols] = train_df[train_int_cols].astype("Int64")
 
     return train_df
 
 
-def _get_cat_meta(data):
-    """Return column info for the master catalog of a given class
-    
-    Args:
-        data(str): Class name
-    """
-    
-    catalog = zarr.open(path_dict[data], mode='r')['catalog']
-    
-    return catalog.attrs.asdict().copy()
+def _get_cat_meta():
+    """Return column info for the master catalog. """
+    return meta_data["master_col_def"]
 
 
 def qso_cat_meta():
     """Function to display column info for the QSO master catalog"""
-
-    return _get_cat_meta('qso')
+    return _get_cat_meta()
 
 
 def var_cat_meta():
     """Function to display column info for the variable star master catalog"""
-
-    return _get_cat_meta('vStar')
+    return _get_cat_meta()
 
 
 def gal_cat_meta():
     """Function to display column info for the galaxy master catalog"""
-
-    return _get_cat_meta('gal')
+    return _get_cat_meta()
 
 
 def clip_lc(lc_df):
-    '''Clip outliers from LC
+    """Clip outliers from LC
 
     Args:
         lc_df: A dataframe holding the light curve.
-    '''
+    """
 
     lc_len = lc_df.shape[0]
 
-    for band in ['u', 'g', 'r', 'i', 'z']:
+    for band in ["u", "g", "r", "i", "z"]:
 
         # three point median filter
-        mag = lc_df['dered_{}'.format(band)].values.copy()
+        mag = lc_df["dered_{}".format(band)].values.copy()
         sigma = np.std(mag)
         med = mag.copy()
-        med[1:-2] = [np.median(mag[i-1:i+2]) for i in range(1, lc_len-2)]
+        med[1:-2] = [np.median(mag[i - 1 : i + 2]) for i in range(1, lc_len - 2)]
 
         # need to deal with edges of median filter
         med[0] = np.median([mag[-1], mag[0], mag[1]])
@@ -188,18 +160,18 @@ def clip_lc(lc_df):
 
         # set clipping thresh hold
         raise_bar = True
-        thresh = 3*sigma
+        thresh = 3 * sigma
 
         # if remove too much, raise bar until only remove 10%
         while raise_bar:
-            ratio = sum(res > thresh)/lc_len
+            ratio = sum(res > thresh) / lc_len
             if ratio < 0.1:
                 break
             else:
                 thresh += 0.1
 
         # replace unreliable data with -99
-        lc_df['dered_{}'.format(band)].values[res > thresh] = -99
+        lc_df["dered_{}".format(band)].values[res > thresh] = -99
 
     return lc_df
 
@@ -211,31 +183,32 @@ def get_sdss_lc(train_id, clip=True, datetime=True):
         train_id (int): Unique ID for an object in training sample.
         clip (bool): Indicates whether to run filter removing outliers, default to True.
         datetime (bool): Whether to add datetime column for all bands, default to True.
-    """    
     
-    if train_id not in train_cat.train_id.values:
-        raise Exception('train_id provided is not valid!')
-        
-    for data in data_ls:
-        
-        if train_id in id_dict[data]:
-            
-            lc_df = pd.DataFrame(zarr.load(path_dict[data])['sdss_lc/{}'.format(train_id)]
-                                ).sort_values(by='mjd_u').reset_index(drop=True)
+    Raises:
+        Exception: If train_id is not valid.
+    """
 
-            # add datetime columns
-            if datetime:
-                for band in ['u', 'g', 'r', 'i', 'z']:
-                    lc_df['datetime_{}'.format(band)] = Time(lc_df['mjd_{}'.format(band)],
-                                                             format='mjd').datetime
+    if train_id not in valid_IDs.train_id.values:
+        raise Exception("train_id provided is not valid!")
 
-            # whether to remove outliers
-            if clip:
-                lc_df = clip_lc(lc_df)
+    lc_df = (
+        pd.DataFrame(zarr.load(LC_path)[f"sdss_lc/{train_id}"])
+        .sort_values(by="mjd_u")
+        .reset_index(drop=True)
+    )
 
-            return lc_df.replace(-99.0, np.nan)
+    # add datetime columns
+    if datetime:
+        for band in ["u", "g", "r", "i", "z"]:
+            lc_df["datetime_{}".format(band)] = Time(
+                lc_df["mjd_{}".format(band)], format="mjd"
+            ).datetime
 
-    return None
+    # whether to remove outliers
+    if clip:
+        lc_df = clip_lc(lc_df)
+
+    return lc_df.replace(-99.0, np.nan)
 
 
 def get_sdss_qso(train_id, clip=True, datetime=True):
@@ -246,11 +219,10 @@ def get_sdss_qso(train_id, clip=True, datetime=True):
         clip (bool): Indicates whether to run filter removing outliers, default to True.
         datetime (bool): Whether to add datetime column for all bands, default to True.
     """
-
     # check if id in catalog
-    if train_id not in id_dict['qso']:
-        raise Exception('train_id provided is not in the QSO training set!')
-    
+    if train_id not in valid_IDs.train_id.values:
+        raise Exception("train_id provided is not valid!")
+
     lc = get_sdss_lc(train_id, clip, datetime)
     return lc
 
@@ -263,9 +235,8 @@ def get_sdss_var(train_id, clip=True, datetime=True):
         clip (bool): Indicates whether to run filter removing outliers, default to True.
         datetime (bool): Whether to add datetime column for all bands, default to True.
     """
-
-    if train_id not in id_dict['vStar']:
-        raise Exception('train_id provided is not valid!')
+    if train_id not in valid_IDs.train_id.values:
+        raise Exception("train_id provided is not valid!")
 
     lc = get_sdss_lc(train_id, clip, datetime)
     return lc
@@ -279,15 +250,14 @@ def get_sdss_gal(train_id, clip=True, datetime=True):
         clip (bool): Indicates whether to run filter removing outliers, default to True.
         datetime (bool): Whether to add datetime column for all bands, default to True.
     """
-
-    if train_id not in id_dict['gal']:
-        raise Exception('train_id provided is not valid!')
+    if train_id not in valid_IDs.train_id.values:
+        raise Exception("train_id provided is not valid!")
 
     lc = get_sdss_lc(train_id, clip, datetime)
     return lc
 
 
-def plot_sdss_lc(train_id, bands=['u', 'g', 'r', 'i', 'z'], clip=True):
+def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     """Plot SDSS light curves without merging.
 
     Args:
@@ -303,13 +273,13 @@ def plot_sdss_lc(train_id, bands=['u', 'g', 'r', 'i', 'z'], clip=True):
     """
 
     sdss_lc = get_sdss_lc(train_id, clip, datetime=False)
-    
+
     x = []
     y = []
     err = []
-    mjd_temp = 'mjd_{}'
-    mag_temp = 'dered_{}'
-    err_temp = 'psfmagerr_{}'
+    mjd_temp = "mjd_{}"
+    mag_temp = "dered_{}"
+    err_temp = "psfmagerr_{}"
 
     for band in bands:
         # bad observations has been replaced with np.nan in get functions
@@ -337,11 +307,11 @@ def plot_merged_lc(train_id, bands, how=np.nanmedian, clip=True):
     """
 
     bands, x, y, err = plot_sdss_lc(train_id, bands, clip)
-    
+
     for idx, band in enumerate(bands):
         mean_mag = how(y[idx])
         y[idx] = y[idx] - mean_mag
-        
+
     return bands, x, y, err
 
 
