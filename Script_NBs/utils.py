@@ -23,7 +23,7 @@ def init(data_dir=None):
         data_dir(str): Path to the diretory hosting the training data.
     """
     # initiate global variables
-    global LC_path, cat_path, train_cat, meta_data, valid_IDs
+    global LC_path, LC_zarr, cat_path, train_cat, meta_data, valid_IDs
 
     # if on sciserver, nothing is passed, then assign path to default
     if data_dir == None:
@@ -32,6 +32,7 @@ def init(data_dir=None):
         )
     
     LC_path = os.path.join(data_dir, "LCs.zarr.zip")
+    LC_zarr = zarr.load(LC_path)
     cat_path = os.path.join(data_dir, "AllMasters.parquet")
     meta_data = yaml.safe_load(open(os.path.join(data_dir, "meta.yaml")))
     
@@ -192,7 +193,7 @@ def get_sdss_lc(train_id, clip=True, datetime=True):
         raise Exception("train_id provided is not valid!")
 
     lc_df = (
-        pd.DataFrame(zarr.load(LC_path)[f"sdss_lc/{train_id}"])
+        pd.DataFrame(LC_zarr[f"sdss_lc/{train_id}"])
         .sort_values(by="mjd_u")
         .reset_index(drop=True)
     )
