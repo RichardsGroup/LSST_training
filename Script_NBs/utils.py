@@ -120,7 +120,7 @@ def clip_lc(lc_df):
     for band in ["u", "g", "r", "i", "z"]:
 
         # three point median filter
-        mag = lc_df["dered_{}".format(band)].values.copy()
+        mag = lc_df["psfmag_{}".format(band)].values.copy()
         sigma = np.std(mag)
         med = mag.copy()
         med[1:-2] = [np.median(mag[i - 1 : i + 2]) for i in range(1, lc_len - 2)]
@@ -145,7 +145,7 @@ def clip_lc(lc_df):
                 thresh += 0.1
 
         # replace unreliable data with -99
-        lc_df["dered_{}".format(band)].values[res > thresh] = -99
+        lc_df["psfmag_{}".format(band)].values[res > thresh] = -99
 
     return lc_df
 
@@ -196,7 +196,7 @@ def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     Return:
         bands (list): A list specifying the band filters in which to plot the light curves.
         x (list): A list of numpy arrays of mjd for observations in each band.
-        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        y (list): A list of numpy arrays of magnitude in each band (psf mags)
         err (list): A list of numpy arrays of magnitude errors in each band
     """
 
@@ -206,7 +206,7 @@ def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     y = []
     err = []
     mjd_temp = "mjd_{}"
-    mag_temp = "dered_{}"
+    mag_temp = "psfmag_{}"
     err_temp = "psfmagerr_{}"
 
     for band in bands:
@@ -230,7 +230,7 @@ def plot_merged_lc(train_id, bands, how=np.nanmedian, clip=True):
     Return:
         bands (list): A list specifying the band filters in which to plot the light curves.
         x (list): A list of numpy arrays of mjd for observations in each band.
-        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        y (list): A list of numpy arrays of magnitude in each band (psf mags)
         err (list): A list of numpy arrays of magnitude errors in each band
     """
 
