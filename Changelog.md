@@ -1,3 +1,16 @@
+## 2021-05-12
+### Data Updates
+- Sources: Added spec-confirmed stars (~100k) from SDSS
+- Astrometry: Gaia EDR3 + NOIRLab Source Catalog DR2
+- Photometry: Added DES DR2
+- Time-domain: Added NSC DR2 MAD variability metric
+
+### API Updates
+- `plot_sdss_lc` now use PSF mags by default
+- removed functions `get_qso_cat`, `get_var_cat` and `get_gal_cat`. Use `get_cat(class_label)` instead.
+- removed functions `qso_cat_meta`, `var_cat_meta` and `gal_cat_meta`. Use `get_cat_meta` instead.
+- removed functions `get_sdss_qso`, `get_sdss_var` and `get_sdss_gal`. Use `get_sdss_lc` instead.
+
 ## 2020-10-26
 ### Data Updates
 - Added high redshift QSOs provided by Feige Wang.

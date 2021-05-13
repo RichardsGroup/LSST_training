@@ -82,22 +82,6 @@ def get_cat(class_label):
     return train_cat[train_cat["class"] == class_label].copy()
 
 
-def get_qso_cat():
-    """Function to retrieve QSO master catalog."""
-    return pd.concat([get_cat("s82Qso"), get_cat("highZQso")], ignore_index=True)
-
-
-def get_var_cat():
-    """Function to retrieve non-AGN variables master catalog."""
-    return get_cat("s82vStar")
-
-
-def get_gal_cat():
-    """Function to retrieve non-AGN variables master catalog."""
-
-    return get_cat("s82Gal")
-
-
 def get_train_cat():
     """Return the master catalog of all sources."""
     return train_cat
@@ -119,19 +103,8 @@ def _get_cat_meta():
     """Return column info for the master catalog. """
     return meta_data["master_col_def"]
 
-
-def qso_cat_meta():
-    """Function to display column info for the QSO master catalog"""
-    return _get_cat_meta()
-
-
-def var_cat_meta():
-    """Function to display column info for the variable star master catalog"""
-    return _get_cat_meta()
-
-
-def gal_cat_meta():
-    """Function to display column info for the galaxy master catalog"""
+def get_cat_meta():
+    """Function to display column def for the master catalog"""
     return _get_cat_meta()
 
 
@@ -147,7 +120,7 @@ def clip_lc(lc_df):
     for band in ["u", "g", "r", "i", "z"]:
 
         # three point median filter
-        mag = lc_df["dered_{}".format(band)].values.copy()
+        mag = lc_df["psfmag_{}".format(band)].values.copy()
         sigma = np.std(mag)
         med = mag.copy()
         med[1:-2] = [np.median(mag[i - 1 : i + 2]) for i in range(1, lc_len - 2)]
@@ -172,7 +145,7 @@ def clip_lc(lc_df):
                 thresh += 0.1
 
         # replace unreliable data with -99
-        lc_df["dered_{}".format(band)].values[res > thresh] = -99
+        lc_df["psfmag_{}".format(band)].values[res > thresh] = -99
 
     return lc_df
 
@@ -212,52 +185,6 @@ def get_sdss_lc(train_id, clip=True, datetime=True):
     return lc_df.replace(-99.0, np.nan)
 
 
-def get_sdss_qso(train_id, clip=True, datetime=True):
-    """Function to retreive sdss qso light curve given the object meta info.
-
-    Args:
-        train_id (int): Unique ID for an object in training sample.
-        clip (bool): Indicates whether to run filter removing outliers, default to True.
-        datetime (bool): Whether to add datetime column for all bands, default to True.
-    """
-    # check if id in catalog
-    if train_id not in valid_IDs.train_id.values:
-        raise Exception("train_id provided is not valid!")
-
-    lc = get_sdss_lc(train_id, clip, datetime)
-    return lc
-
-
-def get_sdss_var(train_id, clip=True, datetime=True):
-    """Function to retreive sdss s82 variables light curve given the object meta info.
-
-    Args:
-        train_id (int): Unique ID for an object in training sample.
-        clip (bool): Indicates whether to run filter removing outliers, default to True.
-        datetime (bool): Whether to add datetime column for all bands, default to True.
-    """
-    if train_id not in valid_IDs.train_id.values:
-        raise Exception("train_id provided is not valid!")
-
-    lc = get_sdss_lc(train_id, clip, datetime)
-    return lc
-
-
-def get_sdss_gal(train_id, clip=True, datetime=True):
-    """Function to retreive sdss s82 galaxy light curve given the object meta info.
-
-    Args:
-        train_id (int): Unique ID for an object in training sample.
-        clip (bool): Indicates whether to run filter removing outliers, default to True.
-        datetime (bool): Whether to add datetime column for all bands, default to True.
-    """
-    if train_id not in valid_IDs.train_id.values:
-        raise Exception("train_id provided is not valid!")
-
-    lc = get_sdss_lc(train_id, clip, datetime)
-    return lc
-
-
 def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     """Plot SDSS light curves without merging.
 
@@ -269,7 +196,7 @@ def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     Return:
         bands (list): A list specifying the band filters in which to plot the light curves.
         x (list): A list of numpy arrays of mjd for observations in each band.
-        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        y (list): A list of numpy arrays of magnitude in each band (psf mags)
         err (list): A list of numpy arrays of magnitude errors in each band
     """
 
@@ -279,7 +206,7 @@ def plot_sdss_lc(train_id, bands=["u", "g", "r", "i", "z"], clip=True):
     y = []
     err = []
     mjd_temp = "mjd_{}"
-    mag_temp = "dered_{}"
+    mag_temp = "psfmag_{}"
     err_temp = "psfmagerr_{}"
 
     for band in bands:
@@ -303,7 +230,7 @@ def plot_merged_lc(train_id, bands, how=np.nanmedian, clip=True):
     Return:
         bands (list): A list specifying the band filters in which to plot the light curves.
         x (list): A list of numpy arrays of mjd for observations in each band.
-        y (list): A list of numpy arrays of magnitude in each band (dered mags)
+        y (list): A list of numpy arrays of magnitude in each band (psf mags)
         err (list): A list of numpy arrays of magnitude errors in each band
     """
 
